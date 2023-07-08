@@ -1,7 +1,7 @@
 # USAGE
 # python train_model.py --embeddings output/embeddings.pickle --recognizer output/recognizer.pickle --le output/le.pickle
 # Use the below one using joblib
-# python train_model.py --embeddings output/embeddings.joblib --recognizer output/recognizer.joblib --le output/le.joblib
+# python train_model.py --embeddings output/embeddings.joblib --le output/le.joblib
 
 # import the necessary packages
 from sklearn.preprocessing import LabelEncoder
@@ -70,6 +70,9 @@ recognizer2.fit(data['embeddings'], labels)
 # f.close()
 
 dump(recognizer, 'output/recognizer.joblib')
+dump(recognizer1, 'output/recognizer1.joblib')
+dump(recognizer2, 'output/recognizer2.joblib')
+
 # f1= open("output/recognizer1.pickle","wb")
 # f1.write(pickle.dumps(recognizer1))
 # f1.close()

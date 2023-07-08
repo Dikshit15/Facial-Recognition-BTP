@@ -63,9 +63,11 @@ embedder = cv2.dnn.readNetFromTorch(args["embedding_model"])
 # load the actual face recognition model along with the label encoder
 # recognizer = pickle.loads(open(args["recognizer"], "rb").read())
 le = load(open(args["le"], "rb"))
-print(le)
+# print(le)
 # recognizer1 = pickle.loads(open("output/recognizer1.pickle", "rb").read())
-recognizer2 = load(open("output/recognizer.joblib", "rb"))
+recognizer = load(open("output/recognizer.joblib", "rb"))
+recognizer1 = load(open("output/recognizer1.joblib", "rb"))
+recognizer2 = load(open("output/recognizer2.joblib", "rb"))
 
 # initialize the video stream, then allow the camera sensor to warm up
 print("[INFO] starting video stream...")
@@ -76,11 +78,13 @@ time.sleep(2.0)
 fps = FPS().start()
 frame_counter = 0
 unknown_frame_counter = 0
-name_list = []
-send_list = []
-fl = 0
+svm_list = {}
+random_forest_list = {}
+knn_list = {}
+# send_list = []
+total_frames_passed = 0
 # loop over frames from the video file stream
-while True:
+while total_frames_passed < 800:
 	# grab the frame from the threaded video stream
 	frame = vs.read()
 	# if fl == 1:
@@ -110,6 +114,7 @@ while True:
 		
 		# filter out weak detections
 		if confidence > args["confidence"]:
+			total_frames_passed += 1
 			# compute the (x, y)-coordinates of the bounding box for
 			# the face
 			box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
@@ -133,52 +138,65 @@ while True:
 			# print(vec.shape)
 			try:
 				vec = face_recognition.face_encodings(face)[0]
-				print("face_recognition", vec.shape)
+				# print("face_recognition", vec.shape)
 				vec = vec.reshape(1,-1)
 			except IndexError:
 				continue
 			# perform classification to recognize the face
-			# preds = recognizer.predict_proba(vec)[0]
-			# preds1 = recognizer1.predict_proba(vec)[0]
+			preds = recognizer.predict_proba(vec)[0]
+			preds1 = recognizer1.predict_proba(vec)[0]
 			preds2 = recognizer2.predict_proba(vec)[0]
-			print(preds2)
+			print("Preds is ", preds)
+			print("Preds1 is ", preds1)
+			print("Preds2 is ", preds2)
 			# preds2 = preds2.reshape(-1,1)
 			#print (preds)
 			# for i in range(len(preds)):
 			# 	preds[i]+=preds1[i]
 			# 	preds[i]+=preds2[i]
 
-			j = np.argmax(preds2)
-			# j1 = np.argmax(preds1)
-			proba = preds2[j]
-			name = le.classes_[j]
-			# proba1 = preds[j1]
-			# name1 = le.classes_[j1]
+			j = np.argmax(preds)
+			j1 = np.argmax(preds1)
+			j2 = np.argmax(preds2)
+			proba = preds[j]
+			name = le.classes_[j] 
+			proba1 = preds[j1]
+			name1 = le.classes_[j1]
+			proba2 = preds[j2]
+			name2 = le.classes_[j2]
 			# draw the bounding box of the face along with the
 			# associated probability
-			if (proba > 0.5):
-				frame_counter += 1
-				if frame_counter%2000 == 0:
-					name_detected = max(name_list, key=name_list.count)
-					if name_detected not in send_list:
-						#send_message(name_detected)
-						send_list.append(name_detected)
-					print(name_detected)
-					name_list = []
-					fl =1
-					break
-				else:
-					name_list.append(name)
-				text = "{}: {:.2f}%".format(name, proba * 100)
-				y = startY - 10 if startY - 10 > 10 else startY + 10
-				cv2.rectangle(frame, (startX, startY), (endX, endY),
-					(0, 0, 255), 2)
-				cv2.putText(frame, text, (startX, y),
-					cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
-			else:
-				unknown_frame_counter+=1
-				if unknown_frame_counter%2000 == 0:
-					send_message("An Unknown")
+			if (proba > 0.8):
+				# frame_counter += 1
+				svm_list[name] = svm_list.get(name, 0) + 1
+				# print("SVM name ", name)
+			if(proba1 > 0.8):
+				random_forest_list[name1] = random_forest_list.get(name1, 0) + 1
+				# print("RandomForest name ", name1)
+			if(proba2 > 0.8):
+				knn_list[name2] = knn_list.get(name2, 0) + 1
+				# print("kNN name ", name2)
+				# knn_list[name2]+=1
+				# if frame_counter%2000 == 0:
+				# 	name_detected = max(name_list, key=name_list.count)
+				# 	if name_detected not in send_list:
+				# 		#send_message(name_detected)
+				# 		send_list.append(name_detected)
+				# 	print(name_detected)
+				# 	name_list = []
+				# 	break
+				# else:
+				# 	name_list.append(name)
+				# text = "{}: {:.2f}%".format(name, proba * 100)
+				# y = startY - 10 if startY - 10 > 10 else startY + 10
+				# cv2.rectangle(frame, (startX, startY), (endX, endY),
+				# 	(0, 0, 255), 2)
+				# cv2.putText(frame, text, (startX, y),
+				# 	cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+			# else:
+			# 	unknown_frame_counter+=1
+			# 	if unknown_frame_counter%2000 == 0:
+					# send_message("An Unknown")
 
 
 	# update the FPS counter
@@ -193,6 +211,9 @@ while True:
 		break
 
 # stop the timer and display FPS information
+print("SVM : ", svm_list)
+print("RandomForest : ", random_forest_list)
+print("kNN : ", knn_list)
 fps.stop()
 print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
