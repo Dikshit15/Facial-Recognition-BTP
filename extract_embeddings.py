@@ -1,5 +1,7 @@
 # USAGE
 # python extract_embeddings.py --dataset dataset --embeddings output/embeddings.pickle --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7
+# Instead of the pickle one above, use this instead : 
+# python extract_embeddings.py --dataset dataset --embeddings output/embeddings.joblib --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7
 
 # import the necessary packages
 from imutils import paths
@@ -7,6 +9,8 @@ import numpy as np
 import argparse
 import imutils
 import pickle
+import joblib
+from joblib import dump
 import cv2
 import os
 import face_recognition
@@ -135,8 +139,10 @@ for (i, imagePath) in enumerate(imagePaths):
 # dump the facial embeddings + names to disk
 print("[INFO] serializing {} encodings...".format(total))
 data = {"embeddings": knownEmbeddings, "names": knownNames}
-f = open(args["embeddings"], "wb")
-f.write(pickle.dumps(data))
+with open('output/embeddings.joblib', 'wb') as f:
+    joblib.dump(data, f)
+# f = open(args["embeddings"], "wb")
+# f.write(dump(data, 'output/embeddings.joblib'))
 f.close()
 print(len(knownNames),len(knownEmbeddings))
 for (i,j) in zip(knownNames, knownEmbeddings):

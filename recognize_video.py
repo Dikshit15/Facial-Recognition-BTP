@@ -1,6 +1,9 @@
 # USAGE
 # python recognize_video.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le output/le.pickle
 
+# Instead of using the above command, use the below command:
+# python recognize_video.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.joblib --le output/le.joblib
+
 # import the necessary packages
 from imutils.video import VideoStream
 import face_recognition
@@ -13,6 +16,8 @@ import time
 import cv2
 import os
 from twilio.rest import Client
+# import joblib
+from joblib import load, dump
 
 #Twilio setup
 def send_message(name):
@@ -57,9 +62,10 @@ embedder = cv2.dnn.readNetFromTorch(args["embedding_model"])
 
 # load the actual face recognition model along with the label encoder
 # recognizer = pickle.loads(open(args["recognizer"], "rb").read())
-le = pickle.loads(open(args["le"], "rb").read())
+le = load(open(args["le"], "rb"))
+print(le)
 # recognizer1 = pickle.loads(open("output/recognizer1.pickle", "rb").read())
-recognizer2 = pickle.loads(open("output/recognizer.pickle", "rb").read(), encoding='latin1')
+recognizer2 = load(open("output/recognizer.joblib", "rb"))
 
 # initialize the video stream, then allow the camera sensor to warm up
 print("[INFO] starting video stream...")

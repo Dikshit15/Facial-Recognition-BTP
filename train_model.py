@@ -1,5 +1,7 @@
 # USAGE
 # python train_model.py --embeddings output/embeddings.pickle --recognizer output/recognizer.pickle --le output/le.pickle
+# Use the below one using joblib
+# python train_model.py --embeddings output/embeddings.joblib --recognizer output/recognizer.joblib --le output/le.joblib
 
 # import the necessary packages
 from sklearn.preprocessing import LabelEncoder
@@ -11,6 +13,7 @@ from sklearn.cluster import KMeans
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
+from joblib import load, dump
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -24,7 +27,8 @@ args = vars(ap.parse_args())
 
 # load the face embeddings
 print("[INFO] loading face embeddings...")
-data = pickle.loads(open(args["embeddings"], "rb").read())
+data = load('output/embeddings.joblib')
+print("Dikshit printing " , data)
 
 # encode the labels
 print("[INFO] encoding labels...")
@@ -54,10 +58,11 @@ recognizer.fit(data['embeddings'], labels)
 
 
 # write the actual face recognition model to disk
-f = open(args["recognizer"], "wb")
-f.write(pickle.dumps(recognizer))
-f.close()
+# f = open(args["recognizer"], "wb")
+# f.write(dump(recognizer, 'output/recognizer.joblib'))
+# f.close()
 
+dump(recognizer, 'output/recognizer.joblib')
 # f1= open("output/recognizer1.pickle","wb")
 # f1.write(pickle.dumps(recognizer1))
 # f1.close()
@@ -69,6 +74,7 @@ f.close()
 
 
 # write the label encoder to disk
-f = open(args["le"], "wb")
-f.write(pickle.dumps(le))
-f.close()
+# f = open(args["le"], "wb")
+dump(le, 'output/le.joblib')
+# f.write(dump(le, 'output/le.pickle'))
+# f.close()
