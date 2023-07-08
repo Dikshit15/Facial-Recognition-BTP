@@ -152,7 +152,7 @@ while True:
 			# associated probability
 			if (proba > 0.5):
 				frame_counter += 1
-				if frame_counter%10 is 0:
+				if frame_counter%10 == 0:
 					name_detected = max(name_list, key=name_list.count)
 					if name_detected not in send_list:
 						#send_message(name_detected)
@@ -171,7 +171,7 @@ while True:
 					cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 			else:
 				unknown_frame_counter+=1
-				if unknown_frame_counter%10 is 0:
+				if unknown_frame_counter%10 == 0:
 					send_message("An Unknown")
 
 
