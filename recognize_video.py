@@ -21,15 +21,15 @@ from joblib import load, dump
 
 #Twilio setup
 def send_message(name):
-	account_sid ='AC39a1b7a308b47c83a75c7a634911803b'
-	auth_token ='f8075a9083b31954288e83cb422ce6c8'
+	account_sid ='AC00880b5290347b6ff68e3476f3522b5a'
+	auth_token ='179e2446749c6876ae95b798662aadf6'
 	client=Client(account_sid,auth_token)
 
 	message = client.messages \
 	            .create(
 	                 body=name+" is waiting for you to meet at the door. Please recieve.",
 	                 from_='+12015793833',
-	                 to='+917602279332'
+	                 to='+919079116089'
 	             )
 
 	print(message.sid)
@@ -158,7 +158,7 @@ while True:
 			# associated probability
 			if (proba > 0.5):
 				frame_counter += 1
-				if frame_counter%10 == 0:
+				if frame_counter%2000 == 0:
 					name_detected = max(name_list, key=name_list.count)
 					if name_detected not in send_list:
 						#send_message(name_detected)
@@ -177,7 +177,7 @@ while True:
 					cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 			else:
 				unknown_frame_counter+=1
-				if unknown_frame_counter%10 == 0:
+				if unknown_frame_counter%2000 == 0:
 					send_message("An Unknown")
 
 

@@ -37,11 +37,18 @@ labels = le.fit_transform(data["names"])
 
 # train the model used to accept the 128-d embeddings of the face and
 # then produce the actual face recognition
-print("[INFO] training model kNNighborsClassifier...")
+print("[INFO] training model SVC...")
 recognizer = SVC(C=1.0, kernel="linear", probability=True)
-# recognizer = RandomForestClassifier(n_estimators=100,max_depth=4,random_state=0)
-# recognizer1 = KNeighborsClassifier()
 recognizer.fit(data['embeddings'], labels)
+
+print("[INFO] training model RandomForestClassifier...")
+recognizer1 = RandomForestClassifier(n_estimators=100,max_depth=4,random_state=0)
+recognizer1.fit(data['embeddings'], labels)
+
+print("[INFO] training model kNearestNeighbors...")
+recognizer2 = KNeighborsClassifier(n_neighbors=7)
+recognizer2.fit(data['embeddings'], labels)
+
 # recognizer1.fit(data['embeddings'], labels)
 
 
