@@ -7,11 +7,12 @@
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
 import argparse
 import pickle
 from sklearn.cluster import KMeans
 from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.datasets import make_classification
 from joblib import load, dump
 
@@ -19,7 +20,7 @@ from joblib import load, dump
 ap = argparse.ArgumentParser()
 ap.add_argument("-e", "--embeddings", required=True,
 	help="path to serialized db of facial embeddings")
-ap.add_argument("-r", "--recognizer", required=True,
+ap.add_argument("-r", "--recognizer", required=False,
 	help="path to output model trained to recognize faces")
 ap.add_argument("-l", "--le", required=True,
 	help="path to output label encoder")
@@ -42,12 +43,24 @@ recognizer = SVC(C=1.0, kernel="linear", probability=True)
 recognizer.fit(data['embeddings'], labels)
 
 print("[INFO] training model RandomForestClassifier...")
-recognizer1 = RandomForestClassifier(n_estimators=100,max_depth=4,random_state=0)
+recognizer1 = RandomForestClassifier(n_estimators=100,max_depth=12,random_state=0)
 recognizer1.fit(data['embeddings'], labels)
 
 print("[INFO] training model kNearestNeighbors...")
 recognizer2 = KNeighborsClassifier(n_neighbors=7)
 recognizer2.fit(data['embeddings'], labels)
+
+print("[INFO] training model MultiLayerPerceptron...")
+recognizer3 = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(128,128,128), random_state=1)
+recognizer3.fit(data['embeddings'], labels)
+
+print("[INFO] Training Logistic Regression model...")
+recognizer4 = LogisticRegression(random_state=0)
+recognizer4.fit(data['embeddings'], labels)
+
+print("[INFO] Training Adaboost model...")
+recognizer5 = AdaBoostClassifier(n_estimators=100, random_state=0)
+recognizer5.fit(data['embeddings'], labels)
 
 # recognizer1.fit(data['embeddings'], labels)
 
@@ -72,6 +85,9 @@ recognizer2.fit(data['embeddings'], labels)
 dump(recognizer, 'output/recognizer.joblib')
 dump(recognizer1, 'output/recognizer1.joblib')
 dump(recognizer2, 'output/recognizer2.joblib')
+dump(recognizer3, 'output/recognizer3.joblib')
+dump(recognizer4, 'output/recognizer4.joblib')
+dump(recognizer5, 'output/recognizer5.joblib')
 
 # f1= open("output/recognizer1.pickle","wb")
 # f1.write(pickle.dumps(recognizer1))

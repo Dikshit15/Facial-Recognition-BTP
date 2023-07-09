@@ -68,6 +68,9 @@ le = load(open(args["le"], "rb"))
 recognizer = load(open("output/recognizer.joblib", "rb"))
 recognizer1 = load(open("output/recognizer1.joblib", "rb"))
 recognizer2 = load(open("output/recognizer2.joblib", "rb"))
+recognizer3 = load(open("output/recognizer3.joblib", "rb"))
+recognizer4 = load(open("output/recognizer4.joblib", "rb"))
+recognizer5 = load(open("output/recognizer5.joblib", "rb"))
 
 # initialize the video stream, then allow the camera sensor to warm up
 print("[INFO] starting video stream...")
@@ -81,10 +84,21 @@ unknown_frame_counter = 0
 svm_list = {}
 random_forest_list = {}
 knn_list = {}
+mpl_list = {}
+logreg_list = {}
+adaboost_list = {}
+
+svm_list1 = {}
+random_forest_list1 = {}
+knn_list1 = {}
+mpl_list1 = {}
+logreg_list1 = {}
+adaboost_list1 = {}
+
 # send_list = []
 total_frames_passed = 0
 # loop over frames from the video file stream
-while total_frames_passed < 800:
+while total_frames_passed < 5000:
 	# grab the frame from the threaded video stream
 	frame = vs.read()
 	# if fl == 1:
@@ -92,6 +106,8 @@ while total_frames_passed < 800:
 	# resize the frame to have a width of 600 pixels (while
 	# maintaining the aspect ratio), and then grab the image
 	# dimensions
+	if frame is None:
+		continue
 	frame = imutils.resize(frame, width=600)
 	(h, w) = frame.shape[:2]
 
@@ -146,9 +162,16 @@ while total_frames_passed < 800:
 			preds = recognizer.predict_proba(vec)[0]
 			preds1 = recognizer1.predict_proba(vec)[0]
 			preds2 = recognizer2.predict_proba(vec)[0]
+			preds3 = recognizer3.predict_proba(vec)[0]
+			preds4 = recognizer4.predict_proba(vec)[0]
+			preds5 = recognizer5.predict_proba(vec)[0]
 			print("Preds is ", preds)
 			print("Preds1 is ", preds1)
 			print("Preds2 is ", preds2)
+			print("Preds3 is ", preds3)
+			print("Preds4 is ", preds4)
+			print("Preds5 is ", preds5)
+			print()
 			# preds2 = preds2.reshape(-1,1)
 			#print (preds)
 			# for i in range(len(preds)):
@@ -158,23 +181,87 @@ while total_frames_passed < 800:
 			j = np.argmax(preds)
 			j1 = np.argmax(preds1)
 			j2 = np.argmax(preds2)
+			j3 = np.argmax(preds3)
+			j4 = np.argmax(preds4)
+			j5 = np.argmax(preds5)
+
+			# SVM
 			proba = preds[j]
 			name = le.classes_[j] 
-			proba1 = preds[j1]
+
+			# RandomForest
+			proba1 = preds1[j1]
 			name1 = le.classes_[j1]
-			proba2 = preds[j2]
+
+			# kNN
+			proba2 = preds2[j2]
 			name2 = le.classes_[j2]
+
+			# SVM
+			proba3 = preds3[j3]
+			name3 = le.classes_[j] 
+
+			# RandomForest
+			proba4 = preds4[j4]
+			name4 = le.classes_[j4]
+
+			# kNN
+			proba5 = preds5[j5]
+			name5 = le.classes_[j5]
+
+
 			# draw the bounding box of the face along with the
 			# associated probability
 			if (proba > 0.8):
 				# frame_counter += 1
 				svm_list[name] = svm_list.get(name, 0) + 1
 				# print("SVM name ", name)
+
 			if(proba1 > 0.8):
 				random_forest_list[name1] = random_forest_list.get(name1, 0) + 1
 				# print("RandomForest name ", name1)
+
 			if(proba2 > 0.8):
 				knn_list[name2] = knn_list.get(name2, 0) + 1
+
+			if (proba3 > 0.8):
+				# frame_counter += 1
+				mpl_list[name3] = mpl_list.get(name3, 0) + 1
+				# print("SVM name ", name)
+
+			if(proba4 > 0.8):
+				logreg_list[name4] = logreg_list.get(name4, 0) + 1
+				# print("RandomForest name ", name1)
+
+			if(proba5 > 0.8):
+				adaboost_list[name5] = adaboost_list.get(name5, 0) + 1
+
+##############################################################################
+
+			if (proba > 0):
+				# frame_counter += 1
+				svm_list1[name] = svm_list1.get(name, 0) + 1
+				# print("SVM name ", name)
+
+			if(proba1 > 0):
+				random_forest_list1[name1] = random_forest_list1.get(name1, 0) + 1
+				# print("RandomForest name ", name1)
+
+			if(proba2 > 0):
+				knn_list1[name2] = knn_list1.get(name2, 0) + 1
+
+			if (proba3 > 0):
+				# frame_counter += 1
+				mpl_list1[name3] = mpl_list1.get(name3, 0) + 1
+				# print("SVM name ", name)
+
+			if(proba4 > 0):
+				logreg_list1[name4] = logreg_list1.get(name4, 0) + 1
+				# print("RandomForest name ", name1)
+
+			if(proba5 > 0):
+				adaboost_list1[name5] = adaboost_list1.get(name5, 0) + 1
+
 				# print("kNN name ", name2)
 				# knn_list[name2]+=1
 				# if frame_counter%2000 == 0:
@@ -214,6 +301,21 @@ while total_frames_passed < 800:
 print("SVM : ", svm_list)
 print("RandomForest : ", random_forest_list)
 print("kNN : ", knn_list)
+print("MPL : ", mpl_list)
+print("LogisticRegression : ", logreg_list)
+print("Adaboost : ", adaboost_list)
+
+print()
+print("Without threshold ")
+print()
+
+print("SVM : ", svm_list1)
+print("RandomForest : ", random_forest_list1)
+print("kNN : ", knn_list1)
+print("MPL : ", mpl_list1)
+print("LogisticRegression : ", logreg_list1)
+print("Adaboost : ", adaboost_list1)
+
 fps.stop()
 print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
