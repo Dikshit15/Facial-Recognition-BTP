@@ -25,7 +25,7 @@ def rename_files(folder):
     for filename in os.listdir(folder):
         dst = "image_side_"+ str(i) + ".png"
         src =os.path.join(folder, filename)
-        dst = =os.path.join(folder,dst)
+        dst = os.path.join(folder,dst)
         os.rename(src,dst)
         i+=1
 

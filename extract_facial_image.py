@@ -5,7 +5,7 @@ import os
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 # Directory containing the images
-image_directory = 'dataset/dikshit1'
+image_directory = 'dataset/dikshit2'
 output_directory = 'dataset/DikshitMaheshwari'
 
 # Get a list of image filenames in the directory
@@ -21,7 +21,6 @@ for i, image_filename in enumerate(image_filenames):
     image_path = os.path.join(image_directory, image_filename)
     image = cv2.imread(image_path)
 
-    print("Image is ", image)
     # Convert the image to grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 

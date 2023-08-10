@@ -50,5 +50,6 @@ folder_path = "photos"
 # Set the number of photos to capture
 num_photos = 100
 
+folder_path = 'dataset/dikshit2'
 # Call the function to capture photos
 capture_photos(folder_path, num_photos)
